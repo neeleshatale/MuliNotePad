@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.img_about:
-
                 Toast.makeText(MainActivity.this, "Coming Soon..", Toast.LENGTH_LONG).show();
                 break;
             case R.id.img_add:
