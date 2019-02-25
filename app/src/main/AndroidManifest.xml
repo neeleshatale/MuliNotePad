@@ -22,6 +22,9 @@
             android:name=".activities.EditActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeForMenu" />
+        <activity
+            android:name=".activities.AboutActivity"
+            android:theme="@style/AppThemeForMenu"></activity>
     </application>
 
 </manifest>

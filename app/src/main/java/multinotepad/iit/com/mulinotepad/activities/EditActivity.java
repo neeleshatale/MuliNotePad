@@ -16,6 +16,8 @@ import java.util.Date;
 
 import multinotepad.iit.com.mulinotepad.R;
 import multinotepad.iit.com.mulinotepad.models.Note;
+import multinotepad.iit.com.mulinotepad.utility.CommonFunction;
+import multinotepad.iit.com.mulinotepad.utility.OnClickListener;
 
 public class EditActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -45,20 +47,48 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    public void onBackPressed() {
+        if (!etTitle.getText().toString().trim().isEmpty()) {
+            showAlert();
+        } else
+            finish();
+    }
+
+    private void showAlert() {
+        String noteTitle = "'" + etTitle.getText().toString().trim() + "'";
+        CommonFunction.getInstance().showAlertDialog(EditActivity.this, "Your note is not saved! Save note " + noteTitle, "YES", "NO", new OnClickListener() {
+            @Override
+            public void OnPositiveButtonClick() {
+                saveNote();
+            }
+
+            @Override
+            public void OnNegativeButtonClick() {
+                finish();
+            }
+        });
+    }
+
+    @Override
     public void onClick(View v) {
         if (v.getId() == R.id.img_save) {
             if (etTitle.getText() != null && etTitle.getText().toString().trim().isEmpty()) {
                 Toast.makeText(EditActivity.this, "Un-titled activity was not saved.", Toast.LENGTH_LONG).show();
-            } else {
-                //Sun, Feb 10, 12:41 AM
-                SimpleDateFormat sdf = new SimpleDateFormat("E,MMM d, hh:mm a");
-                String lastSavedDate = sdf.format(new Date());
-                Note note = new Note(etTitle.getText().toString().trim(), lastSavedDate, etNote.getText().toString().trim());
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("NEW_NOTE", note);
-                setResult(Activity.RESULT_OK, returnIntent);
                 finish();
+            } else {
+                saveNote();
             }
         }
+    }
+
+    private void saveNote() {
+        //Sun, Feb 10, 12:41 AM
+        SimpleDateFormat sdf = new SimpleDateFormat("E,MMM d, hh:mm a");
+        String lastSavedDate = sdf.format(new Date());
+        Note note = new Note(etTitle.getText().toString().trim(), lastSavedDate, etNote.getText().toString().trim());
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("NEW_NOTE", note);
+        setResult(Activity.RESULT_OK, returnIntent);
+        finish();
     }
 }

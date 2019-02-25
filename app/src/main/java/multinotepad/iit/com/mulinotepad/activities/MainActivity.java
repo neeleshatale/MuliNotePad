@@ -11,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,18 +77,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Note note = new Note("Title Buy USB Cable", "12/02/2018 Monday", "Lorem ipsum dolor sit amet, volutpat nullam nec,");
         noteList = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
-           // noteList.add(note);
+            // noteList.add(note);
         }
     }
 
     @Override
     public void onClick(View v) {
+        Intent intent;
         switch (v.getId()) {
             case R.id.img_about:
-                Toast.makeText(MainActivity.this, "Coming Soon..", Toast.LENGTH_LONG).show();
+                intent = new Intent(MainActivity.this, AboutActivity.class);
+                startActivity(intent);
                 break;
             case R.id.img_add:
-                Intent intent = new Intent(MainActivity.this, EditActivity.class);
+                intent = new Intent(MainActivity.this, EditActivity.class);
                 startActivityForResult(intent, 101);
                 break;
         }
