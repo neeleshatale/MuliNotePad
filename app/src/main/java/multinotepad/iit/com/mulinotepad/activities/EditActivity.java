@@ -1,5 +1,7 @@
 package multinotepad.iit.com.mulinotepad.activities;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -9,7 +11,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import multinotepad.iit.com.mulinotepad.R;
+import multinotepad.iit.com.mulinotepad.models.Note;
 
 public class EditActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -41,7 +47,18 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.img_save) {
-            Toast.makeText(EditActivity.this, "Coming Soon..", Toast.LENGTH_LONG).show();
+            if (etTitle.getText() != null && etTitle.getText().toString().trim().isEmpty()) {
+                Toast.makeText(EditActivity.this, "Un-titled activity was not saved.", Toast.LENGTH_LONG).show();
+            } else {
+                //Sun, Feb 10, 12:41 AM
+                SimpleDateFormat sdf = new SimpleDateFormat("E,MMM d, hh:mm a");
+                String lastSavedDate = sdf.format(new Date());
+                Note note = new Note(etTitle.getText().toString().trim(), lastSavedDate, etNote.getText().toString().trim());
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("NEW_NOTE", note);
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            }
         }
     }
 }

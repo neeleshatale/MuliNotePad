@@ -1,7 +1,9 @@
 package multinotepad.iit.com.mulinotepad.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView toolBarTitle;
     private ImageButton imgAbout;
     private ImageButton imgEdit;
+    private List<Note> noteList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,16 +49,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         errorTextView = findViewById(R.id.tv_no_not_error);
         notesRecyclerView = findViewById(R.id.rv_notes);
         setSupportActionBar(toolBar);
-
+        getNotes();
         setAdapter();
     }
 
     private void setAdapter() {
-        Note note = new Note("Title Buy USB Cable", "12/02/2018 Monday", "Lorem ipsum dolor sit amet, volutpat nullam nec,");
-        List<Note> noteList = new ArrayList<>();
-        for (int i = 0; i < 15; i++) {
-            noteList.add(note);
-        }
         if (noteList != null && !noteList.isEmpty()) {
             toolBarTitle.setText("Multi Note (" + noteList.size() + ")");
             errorTextView.setVisibility(View.GONE);
@@ -75,6 +73,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    @NonNull
+    private void getNotes() {
+        Note note = new Note("Title Buy USB Cable", "12/02/2018 Monday", "Lorem ipsum dolor sit amet, volutpat nullam nec,");
+        noteList = new ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+           // noteList.add(note);
+        }
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -83,9 +90,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.img_add:
                 Intent intent = new Intent(MainActivity.this, EditActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 101);
                 break;
         }
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 101) {
+            if (resultCode == Activity.RESULT_OK) {
+                Note note = (Note) data.getSerializableExtra("NEW_NOTE");
+                noteList.add(note);
+                setAdapter();
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ public class Note implements Serializable {
     private String title;
     private String lastSavedDate;
     private String noteText;
+    private boolean isSavedToFS;
 
     public Note(String title, String lastSavedDate, String noteText) {
         this.title = title;
@@ -37,12 +38,21 @@ public class Note implements Serializable {
         this.noteText = noteText;
     }
 
+    public boolean isSavedToFS() {
+        return isSavedToFS;
+    }
+
+    public void setSavedToFS(boolean savedToFS) {
+        isSavedToFS = savedToFS;
+    }
+
     @Override
     public String toString() {
         return "Note{" +
-                "lastSavedDate='" + lastSavedDate + '\'' +
-                ", title='" + title + '\'' +
+                "title='" + title + '\'' +
+                ", lastSavedDate='" + lastSavedDate + '\'' +
                 ", noteText='" + noteText + '\'' +
+                ", isSavedToFS=" + isSavedToFS +
                 '}';
     }
 }
