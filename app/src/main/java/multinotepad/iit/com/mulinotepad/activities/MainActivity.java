@@ -181,31 +181,52 @@ public class MainActivity extends AppCompatActivity implements OnItemClick {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 101) {
-            if (resultCode == Activity.RESULT_OK) {
-                Note note = (Note) data.getSerializableExtra("NEW_NOTE");
-                noteList.add(note);
-                setAdapter();
+        try {
+            if (requestCode == 101) {
+                if (resultCode == Activity.RESULT_OK) {
+                    Note note = (Note) data.getSerializableExtra("NEW_NOTE");
+                    if (note != null) {
+                        if (note.isNew()) {
+                            noteList.add(note);
+                        } else {
+                            for (Note note1 : noteList) {
+                                if (note1 != null && note1.getId() != null && note1.getId().equals(note.getId())) {
+                                    noteList.remove(note1);
+                                    noteList.add(note);
+                                }
+                            }
+                        }
+                    }
+                    setAdapter();
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @Override
-    public void onItemClick(Object obj) {
+    public void onItemLongClick(Object obj) {
         final Note note = (Note) obj;
-        if (!note.isSavedToFS()) {
-            CommonFunction.getInstance().showAlertDialog(MainActivity.this, "Delete Note '" + note.getTitle() + "'", "YES", "NO", new OnClickListener() {
-                @Override
-                public void OnPositiveButtonClick() {
-                    noteList.remove(note);
-                    setAdapter();
-                }
+        CommonFunction.getInstance().showAlertDialog(MainActivity.this, "Delete Note '" + note.getTitle() + "'", "YES", "NO", new OnClickListener() {
+            @Override
+            public void OnPositiveButtonClick() {
+                noteList.remove(note);
+                setAdapter();
+            }
 
-                @Override
-                public void OnNegativeButtonClick() {
+            @Override
+            public void OnNegativeButtonClick() {
 
-                }
-            });
-        }
+            }
+        });
+    }
+
+    @Override
+    public void onItemClick(Object obj) {
+        Note note = (Note) obj;
+        Intent intent = new Intent(MainActivity.this, EditActivity.class);
+        intent.putExtra("OLD_NOTE", note);
+        startActivityForResult(intent, 101);
     }
 }

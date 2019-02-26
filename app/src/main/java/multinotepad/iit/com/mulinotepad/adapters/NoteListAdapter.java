@@ -41,11 +41,20 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
             holder.tvLastSavedDate.setText(note.getLastSavedDate());
             holder.tvNote.setText(note.getNoteText());
 
+            holder.llListItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (onItemClick != null) {
+                        onItemClick.onItemClick(note);
+                    }
+                }
+            });
+
             holder.llListItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     if (onItemClick != null) {
-                        onItemClick.onItemClick(note);
+                        onItemClick.onItemLongClick(note);
                     }
                     return true;
                 }

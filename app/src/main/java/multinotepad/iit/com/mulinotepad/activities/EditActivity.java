@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 import multinotepad.iit.com.mulinotepad.R;
 import multinotepad.iit.com.mulinotepad.models.Note;
@@ -25,6 +26,7 @@ public class EditActivity extends AppCompatActivity {
     private TextView toolBarTitle;
     private EditText etNote;
     private EditText etTitle;
+    private Note oldNote;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +37,15 @@ public class EditActivity extends AppCompatActivity {
         toolBarTitle = findViewById(R.id.toolbar_title);
         etTitle = findViewById(R.id.etTitle);
         etNote = findViewById(R.id.etNote);
-
         toolBarTitle.setText("Multi Notes");
         setSupportActionBar(toolBar);
+        if (getIntent().getExtras() != null) {
+            oldNote = (Note) getIntent().getSerializableExtra("OLD_NOTE");
+            if (oldNote != null) {
+                etTitle.setText(oldNote.getTitle());
+                etNote.setText(oldNote.getNoteText());
+            }
+        }
     }
 
     @Override
@@ -88,7 +96,15 @@ public class EditActivity extends AppCompatActivity {
         //Sun, Feb 10, 12:41 AM
         SimpleDateFormat sdf = new SimpleDateFormat("E,MMM d, hh:mm a");
         String lastSavedDate = sdf.format(new Date());
-        Note note = new Note(etTitle.getText().toString().trim(), lastSavedDate, etNote.getText().toString().trim());
+        String id;
+        boolean isNew = true;
+        if (oldNote != null && oldNote.getId() != null && !oldNote.getId().isEmpty()) {
+            id = oldNote.getId();
+            isNew = false;
+        } else
+            id = UUID.randomUUID().toString();
+        Note note = new Note(id, etTitle.getText().toString().trim(), lastSavedDate, etNote.getText().toString().trim());
+        note.setNew(isNew);
         Intent returnIntent = new Intent();
         returnIntent.putExtra("NEW_NOTE", note);
         setResult(Activity.RESULT_OK, returnIntent);

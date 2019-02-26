@@ -3,15 +3,25 @@ package multinotepad.iit.com.mulinotepad.models;
 import java.io.Serializable;
 
 public class Note implements Serializable {
+    private String id;
     private String title;
     private String lastSavedDate;
     private String noteText;
-    private boolean isSavedToFS;
+    private boolean isNew;
 
-    public Note(String title, String lastSavedDate, String noteText) {
+    public Note(String id, String title, String lastSavedDate, String noteText) {
+        this.id = id;
         this.title = title;
         this.lastSavedDate = lastSavedDate;
         this.noteText = noteText;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getLastSavedDate() {
@@ -38,21 +48,22 @@ public class Note implements Serializable {
         this.noteText = noteText;
     }
 
-    public boolean isSavedToFS() {
-        return isSavedToFS;
+    public boolean isNew() {
+        return isNew;
     }
 
-    public void setSavedToFS(boolean savedToFS) {
-        isSavedToFS = savedToFS;
+    public void setNew(boolean aNew) {
+        isNew = aNew;
     }
 
     @Override
     public String toString() {
         return "Note{" +
-                "title='" + title + '\'' +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
                 ", lastSavedDate='" + lastSavedDate + '\'' +
                 ", noteText='" + noteText + '\'' +
-                ", isSavedToFS=" + isSavedToFS +
+                ", isNew=" + isNew +
                 '}';
     }
 }
