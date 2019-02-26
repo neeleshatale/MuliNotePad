@@ -8,20 +8,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
 import multinotepad.iit.com.mulinotepad.R;
 import multinotepad.iit.com.mulinotepad.models.Note;
+import multinotepad.iit.com.mulinotepad.utility.OnItemClick;
 
 public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHolder> {
     private List<Note> notes;
     private Context context;
+    private OnItemClick onItemClick;
 
-    public NoteListAdapter(Context context, List<Note> notes) {
+    public NoteListAdapter(Context context, List<Note> notes, OnItemClick onItemClick) {
         this.context = context;
         this.notes = notes;
+        this.onItemClick = onItemClick;
     }
 
     @NonNull
@@ -33,11 +35,21 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Note note = notes.get(position);
+        final Note note = notes.get(position);
         if (note != null) {
             holder.tvtitle.setText(note.getTitle());
             holder.tvLastSavedDate.setText(note.getLastSavedDate());
             holder.tvNote.setText(note.getNoteText());
+
+            holder.llListItem.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if (onItemClick != null) {
+                        onItemClick.onItemClick(note);
+                    }
+                    return true;
+                }
+            });
         }
     }
 
@@ -46,7 +58,7 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
         return notes.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder {
         LinearLayout llListItem;
         TextView tvtitle;
         TextView tvLastSavedDate;
@@ -58,12 +70,6 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
             tvtitle = itemView.findViewById(R.id.tv_title);
             tvLastSavedDate = itemView.findViewById(R.id.tv_saved_date);
             tvNote = itemView.findViewById(R.id.tv_note);
-            llListItem.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            Toast.makeText(context, "Coming Soon..", Toast.LENGTH_LONG).show();
         }
     }
 }

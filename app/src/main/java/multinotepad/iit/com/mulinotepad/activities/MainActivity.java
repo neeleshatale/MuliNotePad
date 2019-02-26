@@ -3,8 +3,8 @@ package multinotepad.iit.com.mulinotepad.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -30,8 +29,12 @@ import java.util.List;
 import multinotepad.iit.com.mulinotepad.R;
 import multinotepad.iit.com.mulinotepad.adapters.NoteListAdapter;
 import multinotepad.iit.com.mulinotepad.models.Note;
+import multinotepad.iit.com.mulinotepad.models.NoteList;
+import multinotepad.iit.com.mulinotepad.utility.CommonFunction;
+import multinotepad.iit.com.mulinotepad.utility.OnClickListener;
+import multinotepad.iit.com.mulinotepad.utility.OnItemClick;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnItemClick {
 
     private RecyclerView notesRecyclerView;
     private NoteListAdapter noteListAdapter;
@@ -40,7 +43,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView toolBarTitle;
     private ImageButton imgAbout;
     private ImageButton imgEdit;
-    private List<Note> noteList;
+    private List<Note> noteList = new ArrayList<>();
+    private static final String fileName = "storage.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,29 +65,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         notesRecyclerView = findViewById(R.id.rv_notes);
         setSupportActionBar(toolBar);
 
-
-        boolean isFilePresent = isFilePresent(MainActivity.this, "storage.json");
+        boolean isFilePresent = isFilePresent(MainActivity.this, fileName);
         if (isFilePresent) {
-            String jsonString = read(MainActivity.this, "storage.json");
-            Toast.makeText(MainActivity.this, jsonString, Toast.LENGTH_LONG).show();
-            //do the json parsing here and do the rest of functionality of app
+            new FetchData().execute();
         } else {
-            boolean isFileCreated = create(MainActivity.this, "storage.json");
-            if (isFileCreated) {
+            create(MainActivity.this);
+            setAdapter();
+        }
+    }
 
-                //proceed with storing the first todo  or show ui
-            } else {
-                //show error or try again.
-            }
+    private class FetchData extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... voids) {
+            return read(MainActivity.this);
         }
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
 
-        getNotes();
-        setAdapter();
+        @Override
+        protected void onPostExecute(String jsonString) {
+            Gson gson = new Gson();
+            NoteList tmpNoteList = gson.fromJson(jsonString, NoteList.class);
+            noteList = tmpNoteList.getNoteList();
+            setAdapter();
+        }
     }
 
 
-    private String read(Context context, String fileName) {
+    private String read(Context context) {
         try {
             FileInputStream fis = context.openFileInput(fileName);
             InputStreamReader isr = new InputStreamReader(fis);
@@ -101,18 +113,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private boolean create(Context context, String fileName) {
+    private void create(Context context) {
         try {
             File newFile = new File(context.getFilesDir().getAbsolutePath(), fileName);
             newFile.createNewFile();
-            return true;
         } catch (Exception fileNotFound) {
-            return false;
+            fileNotFound.printStackTrace();
         }
 
     }
 
-    private void writeToFile(File file, String jsonString) {
+    private void writeToFile(File file, List<Note> noteList) {
+        NoteList notes = new NoteList();
+        notes.setNoteList(noteList);
+        String jsonString = new Gson().toJson(notes);
         try {
             FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
             BufferedWriter bw = new BufferedWriter(fileWriter);
@@ -121,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public boolean isFilePresent(Context context, String fileName) {
@@ -139,24 +152,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             llm.setOrientation(LinearLayoutManager.VERTICAL);
             notesRecyclerView.setHasFixedSize(true);
             notesRecyclerView.setLayoutManager(llm);
-            noteListAdapter = new NoteListAdapter(MainActivity.this, noteList);
+            noteListAdapter = new NoteListAdapter(MainActivity.this, noteList, this);
             notesRecyclerView.setAdapter(noteListAdapter);
         } else {
             toolBarTitle.setText("Multi Note");
             errorTextView.setVisibility(View.VISIBLE);
             notesRecyclerView.setVisibility(View.GONE);
         }
-
-
     }
 
-    @NonNull
-    private void getNotes() {
-        Note note = new Note("Title Buy USB Cable", "12/02/2018 Monday", "Lorem ipsum dolor sit amet, volutpat nullam nec,");
-        noteList = new ArrayList<>();
-        for (int i = 0; i < 15; i++) {
-            // noteList.add(note);
-        }
+    @Override
+    protected void onPause() {
+        writeToFile(new File(MainActivity.this.getFilesDir().getAbsolutePath(), fileName), noteList);
+        super.onPause();
     }
 
     @Override
@@ -181,8 +189,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Note note = (Note) data.getSerializableExtra("NEW_NOTE");
                 noteList.add(note);
                 setAdapter();
-                writeToFile(new File(MainActivity.this.getFilesDir().getAbsolutePath(), "storage.json"), new Gson().toJson(note));
             }
+        }
+    }
+
+    @Override
+    public void onItemClick(Object obj) {
+        final Note note = (Note) obj;
+        if (!note.isSavedToFS()) {
+            CommonFunction.getInstance().showAlertDialog(MainActivity.this, "Delete Note '" + note.getTitle() + "'", "YES", "NO", new OnClickListener() {
+                @Override
+                public void OnPositiveButtonClick() {
+                    noteList.remove(note);
+                    setAdapter();
+                }
+
+                @Override
+                public void OnNegativeButtonClick() {
+
+                }
+            });
         }
     }
 }
