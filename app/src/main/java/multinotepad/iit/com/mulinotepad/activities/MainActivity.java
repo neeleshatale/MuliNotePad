@@ -1,6 +1,7 @@
 package multinotepad.iit.com.mulinotepad.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,7 +12,18 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,8 +60,74 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         errorTextView = findViewById(R.id.tv_no_not_error);
         notesRecyclerView = findViewById(R.id.rv_notes);
         setSupportActionBar(toolBar);
+
+
+        boolean isFilePresent = isFilePresent(MainActivity.this, "storage.json");
+        if (isFilePresent) {
+            String jsonString = read(MainActivity.this, "storage.json");
+            Toast.makeText(MainActivity.this, jsonString, Toast.LENGTH_LONG).show();
+            //do the json parsing here and do the rest of functionality of app
+        } else {
+            boolean isFileCreated = create(MainActivity.this, "storage.json");
+            if (isFileCreated) {
+
+                //proceed with storing the first todo  or show ui
+            } else {
+                //show error or try again.
+            }
+        }
+
+
         getNotes();
         setAdapter();
+    }
+
+
+    private String read(Context context, String fileName) {
+        try {
+            FileInputStream fis = context.openFileInput(fileName);
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader bufferedReader = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                sb.append(line);
+            }
+            return sb.toString();
+        } catch (FileNotFoundException fileNotFound) {
+            return null;
+        } catch (IOException ioException) {
+            return null;
+        }
+    }
+
+    private boolean create(Context context, String fileName) {
+        try {
+            File newFile = new File(context.getFilesDir().getAbsolutePath(), fileName);
+            newFile.createNewFile();
+            return true;
+        } catch (Exception fileNotFound) {
+            return false;
+        }
+
+    }
+
+    private void writeToFile(File file, String jsonString) {
+        try {
+            FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fileWriter);
+            bw.write(jsonString);
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public boolean isFilePresent(Context context, String fileName) {
+        String path = context.getFilesDir().getAbsolutePath() + "/" + fileName;
+        File file = new File(path);
+        return file.exists();
     }
 
     private void setAdapter() {
@@ -103,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Note note = (Note) data.getSerializableExtra("NEW_NOTE");
                 noteList.add(note);
                 setAdapter();
+                writeToFile(new File(MainActivity.this.getFilesDir().getAbsolutePath(), "storage.json"), new Gson().toJson(note));
             }
         }
     }
