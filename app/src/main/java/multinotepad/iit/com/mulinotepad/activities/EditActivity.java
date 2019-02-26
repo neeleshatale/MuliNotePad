@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,11 +19,10 @@ import multinotepad.iit.com.mulinotepad.models.Note;
 import multinotepad.iit.com.mulinotepad.utility.CommonFunction;
 import multinotepad.iit.com.mulinotepad.utility.OnClickListener;
 
-public class EditActivity extends AppCompatActivity implements View.OnClickListener {
+public class EditActivity extends AppCompatActivity {
 
     private Toolbar toolBar;
     private TextView toolBarTitle;
-    private ImageButton imgSave;
     private EditText etNote;
     private EditText etTitle;
 
@@ -34,16 +33,32 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
         toolBar = findViewById(R.id.toolbar);
         toolBarTitle = findViewById(R.id.toolbar_title);
-        imgSave = findViewById(R.id.img_save);
         etTitle = findViewById(R.id.etTitle);
         etNote = findViewById(R.id.etNote);
 
         toolBarTitle.setText("Multi Notes");
-
-        imgSave.setOnClickListener(this);
-
-        imgSave.setVisibility(View.VISIBLE);
         setSupportActionBar(toolBar);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.meni_edit, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.save_note:
+                if (etTitle.getText() != null && etTitle.getText().toString().trim().isEmpty()) {
+                    Toast.makeText(EditActivity.this, "Un-titled activity was not saved.", Toast.LENGTH_LONG).show();
+                    finish();
+                } else {
+                    saveNote();
+                }
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -67,18 +82,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 finish();
             }
         });
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.img_save) {
-            if (etTitle.getText() != null && etTitle.getText().toString().trim().isEmpty()) {
-                Toast.makeText(EditActivity.this, "Un-titled activity was not saved.", Toast.LENGTH_LONG).show();
-                finish();
-            } else {
-                saveNote();
-            }
-        }
     }
 
     private void saveNote() {

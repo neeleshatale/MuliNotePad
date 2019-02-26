@@ -9,8 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -34,15 +35,13 @@ import multinotepad.iit.com.mulinotepad.utility.CommonFunction;
 import multinotepad.iit.com.mulinotepad.utility.OnClickListener;
 import multinotepad.iit.com.mulinotepad.utility.OnItemClick;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnItemClick {
+public class MainActivity extends AppCompatActivity implements OnItemClick {
 
     private RecyclerView notesRecyclerView;
     private NoteListAdapter noteListAdapter;
     private TextView errorTextView;
     private Toolbar toolBar;
     private TextView toolBarTitle;
-    private ImageButton imgAbout;
-    private ImageButton imgEdit;
     private List<Note> noteList = new ArrayList<>();
     private static final String fileName = "storage.json";
 
@@ -52,14 +51,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         toolBar = findViewById(R.id.toolbar);
         toolBarTitle = findViewById(R.id.toolbar_title);
-        imgAbout = findViewById(R.id.img_about);
-        imgEdit = findViewById(R.id.img_add);
-
-        imgAbout.setVisibility(View.VISIBLE);
-        imgEdit.setVisibility(View.VISIBLE);
-
-        imgAbout.setOnClickListener(this);
-        imgEdit.setOnClickListener(this);
 
         errorTextView = findViewById(R.id.tv_no_not_error);
         notesRecyclerView = findViewById(R.id.rv_notes);
@@ -94,6 +85,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.action_about:
+                intent = new Intent(MainActivity.this, AboutActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_addnote:
+                intent = new Intent(MainActivity.this, EditActivity.class);
+                startActivityForResult(intent, 101);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private String read(Context context) {
         try {
@@ -165,21 +177,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPause() {
         writeToFile(new File(MainActivity.this.getFilesDir().getAbsolutePath(), fileName), noteList);
         super.onPause();
-    }
-
-    @Override
-    public void onClick(View v) {
-        Intent intent;
-        switch (v.getId()) {
-            case R.id.img_about:
-                intent = new Intent(MainActivity.this, AboutActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.img_add:
-                intent = new Intent(MainActivity.this, EditActivity.class);
-                startActivityForResult(intent, 101);
-                break;
-        }
     }
 
     @Override
