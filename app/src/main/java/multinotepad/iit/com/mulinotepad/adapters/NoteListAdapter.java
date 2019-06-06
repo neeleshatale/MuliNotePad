@@ -17,11 +17,9 @@ import multinotepad.iit.com.mulinotepad.utility.OnItemClick;
 
 public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHolder> {
     private List<Note> notes;
-    private Context context;
     private OnItemClick onItemClick;
 
     public NoteListAdapter(Context context, List<Note> notes, OnItemClick onItemClick) {
-        this.context = context;
         this.notes = notes;
         this.onItemClick = onItemClick;
     }

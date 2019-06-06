@@ -22,8 +22,6 @@ import multinotepad.iit.com.mulinotepad.utility.OnClickListener;
 
 public class EditActivity extends AppCompatActivity {
 
-    private Toolbar toolBar;
-    private TextView toolBarTitle;
     private EditText etNote;
     private EditText etTitle;
     private Note oldNote;
@@ -33,8 +31,8 @@ public class EditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
 
-        toolBar = findViewById(R.id.toolbar);
-        toolBarTitle = findViewById(R.id.toolbar_title);
+        Toolbar toolBar = findViewById(R.id.toolbar);
+        TextView toolBarTitle = findViewById(R.id.toolbar_title);
         etTitle = findViewById(R.id.etTitle);
         etNote = findViewById(R.id.etNote);
         toolBarTitle.setText("Multi Notes");

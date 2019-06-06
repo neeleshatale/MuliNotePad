@@ -38,9 +38,7 @@ import multinotepad.iit.com.mulinotepad.utility.OnItemClick;
 public class MainActivity extends AppCompatActivity implements OnItemClick {
 
     private RecyclerView notesRecyclerView;
-    private NoteListAdapter noteListAdapter;
     private TextView errorTextView;
-    private Toolbar toolBar;
     private TextView toolBarTitle;
     private List<Note> noteList = new ArrayList<>();
     private static final String fileName = "storage.json";
@@ -49,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClick {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        toolBar = findViewById(R.id.toolbar);
+        Toolbar toolBar = findViewById(R.id.toolbar);
         toolBarTitle = findViewById(R.id.toolbar_title);
 
         errorTextView = findViewById(R.id.tv_no_not_error);
@@ -164,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClick {
             llm.setOrientation(LinearLayoutManager.VERTICAL);
             notesRecyclerView.setHasFixedSize(true);
             notesRecyclerView.setLayoutManager(llm);
-            noteListAdapter = new NoteListAdapter(MainActivity.this, noteList, this);
+            NoteListAdapter noteListAdapter = new NoteListAdapter(MainActivity.this, noteList, this);
             notesRecyclerView.setAdapter(noteListAdapter);
         } else {
             toolBarTitle.setText("Multi Note");
